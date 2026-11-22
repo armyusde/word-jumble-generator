@@ -290,3 +290,8 @@ button.secondary { background: #7b7466; }
   font-weight: 600;
 }
 .update-bar button { background: var(--circle); flex-shrink: 0; }
+
+/* ----- right-to-left languages (Arabic) ----- */
+/* The puzzle words are English, so their letters and boxes always run left to right. */
+.puzzle-body, .tray, .slots { direction: ltr; }
+[dir="rtl"] .instructions, [dir="rtl"] .message { line-height: 1.6; }

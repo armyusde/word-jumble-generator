@@ -123,6 +123,57 @@ const TEXT = {
     updateReady: "游戏有新版本了。",
     updateNow: "更新",
   },
+  ar: {
+    title: "مولّد ألغاز الكلمات",
+    won: "مرات الفوز:",
+    mistakesLabel: "الأخطاء:",
+    unscramble: "رتّب الكلمات الخمس",
+    instructions: 'اسحب الحروف إلى المربعات بالأسفل. حروف المربعات المحاطة بدائرة <span class="circle-key"></span> تُستخدم في الكلمة النهائية.',
+    finalJumble: "الكلمة النهائية",
+    hint: "تلميح",
+    newGame: "لعبة جديدة",
+    enterName: "أدخل اسمك لتسجيل النتيجة",
+    highScore: "نتيجة عالية!",
+    yourName: "أدخل اسمك",
+    save: "حفظ",
+    saving: "جارٍ الحفظ…",
+    cancel: "إلغاء",
+    name: "العربية", code: "ar", dir: "rtl",
+    start: () => "حُلّ الكلمات الخمس لفتح الكلمة النهائية.",
+    progress: n => `تم حل ${n} من ${PUZZLE_COUNT} كلمات.`,
+    allSolved: () => "تم حل الكلمات الخمس! رتّب الآن الكلمة النهائية.",
+    solved: w => `أحسنت! الكلمة هي: ⁨${w}⁩`,
+    summary: (w, m, h) => `حللت «⁨${w}⁩» — الأخطاء: ${m}، التلميحات: ${h}.`,
+    saved: name => `تم الحفظ! أحسنت يا ⁨${name}⁩.`,
+    updateReady: "يتوفر إصدار جديد من اللعبة.",
+    updateNow: "تحديث",
+  },
+  es: {
+    title: "Generador de Palabras Revueltas",
+    won: "Partidas ganadas:",
+    mistakesLabel: "Errores:",
+    unscramble: "Ordena las 5 palabras",
+    instructions: 'Arrastra las letras a las casillas de abajo. Las letras de las casillas con <span class="circle-key"></span> círculo van a la palabra final.',
+    finalJumble: "Palabra final",
+    hint: "Pista",
+    newGame: "Nuevo juego",
+    enterName: "Escribe tu nombre para el récord",
+    highScore: "¡Nuevo récord!",
+    yourName: "Escribe tu nombre",
+    save: "Guardar",
+    saving: "Guardando…",
+    cancel: "Cancelar",
+    name: "Español", code: "es",
+    start: () => "Resuelve las 5 palabras para desbloquear la palabra final.",
+    progress: n => `${n} de ${PUZZLE_COUNT} palabras resueltas.`,
+    allSolved: () => "¡Las 5 resueltas! Ahora ordena la palabra final.",
+    solved: w => `¡Lo resolviste: ${w}!`,
+    summary: (w, m, h) =>
+      `Resolviste «${w}» con ${m} ${m === 1 ? "error" : "errores"} y ${h} ${h === 1 ? "pista" : "pistas"}.`,
+    saved: name => `¡Guardado! Buen trabajo, ${name}.`,
+    updateReady: "Hay una nueva versión del juego.",
+    updateNow: "Actualizar",
+  },
 };
 
 let lang = "en";
@@ -139,6 +190,7 @@ function setMessage(key, args = [], kind = "") {
 
 function applyLanguage() {
   document.documentElement.lang = t("code");
+  document.documentElement.dir = t("dir") || "ltr"; // Arabic reads right to left
   document.title = t("title");
   document.querySelectorAll("[data-t]").forEach(n => { n.textContent = t(n.dataset.t); });
   document.querySelectorAll("[data-t-html]").forEach(n => { n.innerHTML = t(n.dataset.tHtml); });
@@ -534,7 +586,7 @@ function showPack(pack) {
   document.head.appendChild(Object.assign(document.createElement("style"), { textContent: pack.css }));
   document.body.className = "";
   document.body.innerHTML = pack.html;
-  self.PACK = { index: pack.index, books: pack.books, booksZh: pack.booksZh, lang };
+  self.PACK = { index: pack.index, books: pack.books, booksByLang: pack.booksByLang || {}, lang };
   const script = document.createElement("script");
   script.textContent = `(() => {\n${pack.js}\n})();`;
   document.body.appendChild(script);
