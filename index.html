@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Word Jumble Generator</title>
+  <meta name="theme-color" content="#3a6ea5">
+  <!-- iPhone home-screen app settings -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Word Jumble">
+  <link rel="apple-touch-icon" href="assets/images/icon-180.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+  <header>
+    <h1>Word Jumble Generator</h1>
+    <div class="stats">
+      <span>Games won: <strong id="score">0</strong></span>
+      <span>Mistakes: <strong id="mistakes">0</strong></span>
+    </div>
+  </header>
+
+  <main class="board">
+    <section class="column left-column">
+      <h2>Unscramble the 5 words</h2>
+      <p class="instructions">Drag the letters down into the boxes. Letters in the <span class="circle-key"></span> circled boxes go to the final jumble.</p>
+      <div id="puzzles" class="puzzles"></div>
+    </section>
+
+    <section class="column right-column">
+      <h2>Final Jumble</h2>
+      <div id="final" class="final-area"></div>
+      <p class="message" id="message"></p>
+      <div class="controls">
+        <button id="hint-btn">Hint</button>
+        <button id="new-btn">New game</button>
+      </div>
+      <button id="score-btn" class="score-btn" hidden>Enter name for high score</button>
+    </section>
+  </main>
+
+  <!-- High score popup -->
+  <div id="score-modal" class="modal" hidden>
+    <form id="score-form" class="modal-box" autocomplete="off">
+      <h2>High Score!</h2>
+      <p id="score-summary"></p>
+      <label for="name-input">Enter your name</label>
+      <input id="name-input" type="text" maxlength="40" autocapitalize="words" spellcheck="false" required>
+      <div class="controls">
+        <button type="submit">Save</button>
+        <button type="button" id="cancel-btn" class="secondary">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="src/words.js"></script>
+  <script src="src/game.js"></script>
+  <script>
+    // Offline support (only works when served over http/https, not from a file).
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      navigator.serviceWorker.register("sw.js");
+    }
+  </script>
+</body>
+</html>
