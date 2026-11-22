@@ -95,6 +95,8 @@ const TEXT = {
       return `You solved "${w}" with ${plural(m, "mistake")} and ${plural(h, "hint")}.`;
     },
     saved: name => `Saved! Nice work, ${name}.`,
+    updateReady: "A new version of the game is ready.",
+    updateNow: "Update",
   },
   zh: {
     title: "单词拼图生成器",
@@ -118,6 +120,8 @@ const TEXT = {
     solved: w => `答对了：${w}！`,
     summary: (w, m, h) => `你解出了“${w}”，错误 ${m} 次，提示 ${h} 次。`,
     saved: name => `已保存！干得好，${name}。`,
+    updateReady: "游戏有新版本了。",
+    updateNow: "更新",
   },
 };
 
@@ -525,6 +529,7 @@ async function openPack(name) {
 }
 
 function showPack(pack) {
+  inPack = true; // never reload for an update while the bonus pack is open
   document.querySelectorAll('link[rel="stylesheet"], style').forEach(n => n.remove());
   document.head.appendChild(Object.assign(document.createElement("style"), { textContent: pack.css }));
   document.body.className = "";
@@ -560,6 +565,54 @@ els.scoreForm.addEventListener("submit", async e => {
 });
 
 // Start fresh (drop any leftover #... from the address).
+/* ---------- automatic updates ---------- */
+// iPhone home-screen apps are usually resumed rather than restarted, so check for
+// a new version every time the app is opened or brought back to the front.
+// When the new version has been downloaded: if no game is in progress, reload
+// straight away; otherwise show an "Update" bar so a game isn't lost.
+
+let inPack = false;
+
+function gameUntouched() {
+  return game && !game.done && game.solvedCount === 0 && game.mistakes === 0 && game.hints === 0 &&
+    !document.querySelector(".slot.filled") && els.scoreModal.hidden && !drag;
+}
+
+function showUpdateBar() {
+  if (document.getElementById("update-bar")) return;
+  const bar = document.createElement("div");
+  bar.id = "update-bar";
+  bar.className = "update-bar";
+  const text = document.createElement("span");
+  text.dataset.t = "updateReady";
+  text.textContent = t("updateReady");
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.dataset.t = "updateNow";
+  btn.textContent = t("updateNow");
+  btn.addEventListener("click", () => location.reload());
+  bar.append(text, btn);
+  document.body.appendChild(bar);
+}
+
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  let controlled = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!controlled) { controlled = true; return; } // first install, not an update
+    if (reloading || inPack) return;
+    if (gameUntouched()) { reloading = true; location.reload(); }
+    else showUpdateBar();
+  });
+  const checkForUpdate = () => {
+    navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {});
+  };
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") checkForUpdate();
+  });
+  window.addEventListener("pageshow", e => { if (e.persisted) checkForUpdate(); });
+}
+
 if (location.hash) history.replaceState(null, "", location.pathname + location.search);
 applyLanguage();
 newGame();
