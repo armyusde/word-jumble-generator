@@ -63,8 +63,10 @@ function containsLetters(word, letters) {
   return true;
 }
 
-/* ---------- language (English / 简体中文) ---------- */
+/* ---------- language ---------- */
 // The puzzles are always English words; only the buttons and messages change.
+// To add a language: add an entry to TEXT with the same keys. "name" is what
+// the language dropdown shows, and "code" is the standard language tag.
 
 const LANG_KEY = "wordJumble.lang";
 const TEXT = {
@@ -83,7 +85,7 @@ const TEXT = {
     save: "Save",
     saving: "Saving…",
     cancel: "Cancel",
-    switchTo: "中文",
+    name: "English", code: "en",
     start: () => "Solve all 5 words to unlock the final jumble.",
     progress: n => `${n} of ${PUZZLE_COUNT} words solved.`,
     allSolved: () => "All 5 solved! Now unscramble the final jumble.",
@@ -109,7 +111,7 @@ const TEXT = {
     save: "保存",
     saving: "保存中…",
     cancel: "取消",
-    switchTo: "English",
+    name: "中文（简体）", code: "zh-CN",
     start: () => "解出全部 5 个单词，即可解锁最终拼词。",
     progress: n => `已解出 ${n} / ${PUZZLE_COUNT} 个单词。`,
     allSolved: () => "5 个单词全部解出！现在来拼最终的单词吧。",
@@ -120,7 +122,7 @@ const TEXT = {
 };
 
 let lang = "en";
-try { if (localStorage.getItem(LANG_KEY) === "zh") lang = "zh"; } catch (e) {}
+try { const saved = localStorage.getItem(LANG_KEY); if (TEXT[saved]) lang = saved; } catch (e) {}
 const t = key => TEXT[lang][key];
 
 let lastMessage = null; // remembered so it can be re-shown in the other language
@@ -132,19 +134,25 @@ function setMessage(key, args = [], kind = "") {
 }
 
 function applyLanguage() {
-  document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+  document.documentElement.lang = t("code");
   document.title = t("title");
   document.querySelectorAll("[data-t]").forEach(n => { n.textContent = t(n.dataset.t); });
   document.querySelectorAll("[data-t-html]").forEach(n => { n.innerHTML = t(n.dataset.tHtml); });
-  const btn = document.getElementById("lang-btn");
-  btn.textContent = t("switchTo");
-  btn.lang = lang === "zh" ? "en" : "zh-CN";
+  langSelect.value = lang;
   if (lastMessage) setMessage(lastMessage.key, lastMessage.args, lastMessage.kind);
   if (game && !els.scoreModal.hidden) els.scoreSummary.textContent = summaryText();
 }
 
-document.getElementById("lang-btn").addEventListener("click", () => {
-  lang = lang === "zh" ? "en" : "zh";
+// Language dropdown: each language listed in its own name.
+const langSelect = document.getElementById("lang-select");
+for (const [id, tx] of Object.entries(TEXT)) {
+  const opt = document.createElement("option");
+  opt.value = id; opt.textContent = tx.name; opt.lang = tx.code;
+  langSelect.appendChild(opt);
+}
+
+langSelect.addEventListener("change", () => {
+  lang = langSelect.value;
   try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
   applyLanguage();
 });

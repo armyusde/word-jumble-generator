@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="Word Jumble">
   <link rel="apple-touch-icon" href="assets/images/icon-180.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="src/style.css">
+  <link rel="stylesheet" href="src/style.css?v=3">
 </head>
 <body>
   <header>
@@ -20,7 +20,7 @@
     <div class="stats">
       <span><span data-t="won">Games won:</span> <strong id="score">0</strong></span>
       <span><span data-t="mistakesLabel">Mistakes:</span> <strong id="mistakes">0</strong></span>
-      <button id="lang-btn" class="lang-btn" type="button" lang="zh-CN">中文</button>
+      <select id="lang-select" class="lang-select" aria-label="Language"></select>
     </div>
   </header>
 
@@ -57,8 +57,8 @@
     </form>
   </div>
 
-  <script src="src/words.js"></script>
-  <script src="src/game.js"></script>
+  <script src="src/words.js?v=3"></script>
+  <script src="src/game.js?v=3"></script>
   <script>
     // Offline support (only works when served over http/https, not from a file).
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {

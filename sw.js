@@ -1,6 +1,6 @@
 // Service worker: caches the game so it works offline once installed.
-// Bump CACHE when you change any files so phones pick up the update.
-const CACHE = "word-jumble-v2";
+// Bump CACHE (and the ?v= numbers in index.html) when you change any files.
+const CACHE = "word-jumble-v3";
 
 const FILES = [
   "./",
@@ -16,7 +16,8 @@ const FILES = [
 ];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
+  // cache: "reload" skips the browser's short-term copy so the newest files are saved.
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(f => new Request(f, { cache: "reload" })))));
   self.skipWaiting();
 });
 
@@ -31,7 +32,7 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
   e.respondWith(
-    fetch(e.request)
+    fetch(e.request, { cache: "no-cache" }) // always check the site for a newer copy
       .then(res => {
         const copy = res.clone();
         caches.open(CACHE).then(c => c.put(e.request, copy));
