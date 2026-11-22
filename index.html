@@ -16,42 +16,43 @@
 </head>
 <body>
   <header>
-    <h1>Word Jumble Generator</h1>
+    <h1 data-t="title">Word Jumble Generator</h1>
     <div class="stats">
-      <span>Games won: <strong id="score">0</strong></span>
-      <span>Mistakes: <strong id="mistakes">0</strong></span>
+      <span><span data-t="won">Games won:</span> <strong id="score">0</strong></span>
+      <span><span data-t="mistakesLabel">Mistakes:</span> <strong id="mistakes">0</strong></span>
+      <button id="lang-btn" class="lang-btn" type="button" lang="zh-CN">中文</button>
     </div>
   </header>
 
   <main class="board">
     <section class="column left-column">
-      <h2>Unscramble the 5 words</h2>
-      <p class="instructions">Drag the letters down into the boxes. Letters in the <span class="circle-key"></span> circled boxes go to the final jumble.</p>
+      <h2 data-t="unscramble">Unscramble the 5 words</h2>
+      <p class="instructions" data-t-html="instructions">Drag the letters down into the boxes. Letters in the <span class="circle-key"></span> circled boxes go to the final jumble.</p>
       <div id="puzzles" class="puzzles"></div>
     </section>
 
     <section class="column right-column">
-      <h2>Final Jumble</h2>
+      <h2 data-t="finalJumble">Final Jumble</h2>
       <div id="final" class="final-area"></div>
       <p class="message" id="message"></p>
       <div class="controls">
-        <button id="hint-btn">Hint</button>
-        <button id="new-btn">New game</button>
+        <button id="hint-btn" data-t="hint">Hint</button>
+        <button id="new-btn" data-t="newGame">New game</button>
       </div>
-      <button id="score-btn" class="score-btn" hidden>Enter name for high score</button>
+      <button id="score-btn" class="score-btn" hidden data-t="enterName">Enter name for high score</button>
     </section>
   </main>
 
   <!-- High score popup -->
   <div id="score-modal" class="modal" hidden>
     <form id="score-form" class="modal-box" autocomplete="off">
-      <h2>High Score!</h2>
+      <h2 data-t="highScore">High Score!</h2>
       <p id="score-summary"></p>
-      <label for="name-input">Enter your name</label>
+      <label for="name-input" data-t="yourName">Enter your name</label>
       <input id="name-input" type="text" maxlength="40" autocapitalize="words" spellcheck="false" required>
       <div class="controls">
-        <button type="submit">Save</button>
-        <button type="button" id="cancel-btn" class="secondary">Cancel</button>
+        <button type="submit" data-t="save">Save</button>
+        <button type="button" id="cancel-btn" class="secondary" data-t="cancel">Cancel</button>
       </div>
     </form>
   </div>

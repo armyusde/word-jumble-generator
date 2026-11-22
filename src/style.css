@@ -257,3 +257,14 @@ button.secondary { background: #7b7466; }
   -webkit-user-select: text;
 }
 .modal-box input:focus { outline: none; border-color: var(--accent); }
+
+/* ----- language switch (English / 中文) ----- */
+.stats { align-items: center; }
+.stats .lang-btn {
+  padding: 4px 12px;
+  font-size: 0.9rem;
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+}

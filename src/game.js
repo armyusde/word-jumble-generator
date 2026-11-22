@@ -63,10 +63,91 @@ function containsLetters(word, letters) {
   return true;
 }
 
-function setMessage(text, kind = "") {
-  els.message.textContent = text;
+/* ---------- language (English / 简体中文) ---------- */
+// The puzzles are always English words; only the buttons and messages change.
+
+const LANG_KEY = "wordJumble.lang";
+const TEXT = {
+  en: {
+    title: "Word Jumble Generator",
+    won: "Games won:",
+    mistakesLabel: "Mistakes:",
+    unscramble: "Unscramble the 5 words",
+    instructions: 'Drag the letters down into the boxes. Letters in the <span class="circle-key"></span> circled boxes go to the final jumble.',
+    finalJumble: "Final Jumble",
+    hint: "Hint",
+    newGame: "New game",
+    enterName: "Enter name for high score",
+    highScore: "High Score!",
+    yourName: "Enter your name",
+    save: "Save",
+    saving: "Saving…",
+    cancel: "Cancel",
+    switchTo: "中文",
+    start: () => "Solve all 5 words to unlock the final jumble.",
+    progress: n => `${n} of ${PUZZLE_COUNT} words solved.`,
+    allSolved: () => "All 5 solved! Now unscramble the final jumble.",
+    solved: w => `You solved it: ${w}!`,
+    summary: (w, m, h) => {
+      const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+      return `You solved "${w}" with ${plural(m, "mistake")} and ${plural(h, "hint")}.`;
+    },
+    saved: name => `Saved! Nice work, ${name}.`,
+  },
+  zh: {
+    title: "单词拼图生成器",
+    won: "胜利局数：",
+    mistakesLabel: "错误：",
+    unscramble: "拼出这 5 个单词",
+    instructions: '把字母拖到下面的格子里。<span class="circle-key"></span> 圆圈格子里的字母会用于最终拼词。',
+    finalJumble: "最终拼词",
+    hint: "提示",
+    newGame: "新游戏",
+    enterName: "输入名字记录高分",
+    highScore: "新高分！",
+    yourName: "输入你的名字",
+    save: "保存",
+    saving: "保存中…",
+    cancel: "取消",
+    switchTo: "English",
+    start: () => "解出全部 5 个单词，即可解锁最终拼词。",
+    progress: n => `已解出 ${n} / ${PUZZLE_COUNT} 个单词。`,
+    allSolved: () => "5 个单词全部解出！现在来拼最终的单词吧。",
+    solved: w => `答对了：${w}！`,
+    summary: (w, m, h) => `你解出了“${w}”，错误 ${m} 次，提示 ${h} 次。`,
+    saved: name => `已保存！干得好，${name}。`,
+  },
+};
+
+let lang = "en";
+try { if (localStorage.getItem(LANG_KEY) === "zh") lang = "zh"; } catch (e) {}
+const t = key => TEXT[lang][key];
+
+let lastMessage = null; // remembered so it can be re-shown in the other language
+
+function setMessage(key, args = [], kind = "") {
+  lastMessage = { key, args, kind };
+  els.message.textContent = TEXT[lang][key](...args);
   els.message.className = "message " + kind;
 }
+
+function applyLanguage() {
+  document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+  document.title = t("title");
+  document.querySelectorAll("[data-t]").forEach(n => { n.textContent = t(n.dataset.t); });
+  document.querySelectorAll("[data-t-html]").forEach(n => { n.innerHTML = t(n.dataset.tHtml); });
+  const btn = document.getElementById("lang-btn");
+  btn.textContent = t("switchTo");
+  btn.lang = lang === "zh" ? "en" : "zh-CN";
+  if (lastMessage) setMessage(lastMessage.key, lastMessage.args, lastMessage.kind);
+  if (game && !els.scoreModal.hidden) els.scoreSummary.textContent = summaryText();
+}
+
+document.getElementById("lang-btn").addEventListener("click", () => {
+  lang = lang === "zh" ? "en" : "zh";
+  try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+  applyLanguage();
+});
 
 /* ---------- puzzle generation ---------- */
 
@@ -182,7 +263,7 @@ function newGame() {
   final.tray = tray;
   game.final = final;
 
-  setMessage("Solve all 5 words to unlock the final jumble.");
+  setMessage("start");
   els.hint.disabled = false;
 }
 
@@ -209,7 +290,7 @@ function solvePuzzle(puzzle) {
     score++;
     els.score.textContent = score;
     els.final.classList.add("solved");
-    setMessage(`You solved it: ${puzzle.word}!`, "win");
+    setMessage("solved", [puzzle.word], "win");
     els.hint.disabled = true;
     els.scoreBtn.hidden = false;
     return;
@@ -225,7 +306,7 @@ function solvePuzzle(puzzle) {
 
   game.solvedCount++;
   if (game.solvedCount === PUZZLE_COUNT) unlockFinal();
-  else setMessage(`${game.solvedCount} of ${PUZZLE_COUNT} words solved.`);
+  else setMessage("progress", [game.solvedCount]);
 }
 
 function unlockFinal() {
@@ -238,7 +319,7 @@ function unlockFinal() {
   tiles.forEach(t => { t.classList.remove("locked"); final.tray.appendChild(t); });
   final.active = true;
   els.final.classList.remove("locked");
-  setMessage("All 5 solved! Now unscramble the final jumble.", "win");
+  setMessage("allSolved", [], "win");
   // On phones the final jumble sits below the 5 words, so bring it into view.
   els.final.scrollIntoView({ behavior: "smooth", block: "center" });
 }
@@ -384,10 +465,10 @@ function saveHighScore(entry) {
   } catch (e) { /* storage unavailable (e.g. private browsing) — just skip saving */ }
 }
 
+const summaryText = () => TEXT[lang].summary(game.final.word, game.mistakes, game.hints);
+
 function openScoreModal() {
-  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
-  els.scoreSummary.textContent =
-    `You solved "${game.final.word}" with ${plural(game.mistakes, "mistake")} and ${plural(game.hints, "hint")}.`;
+  els.scoreSummary.textContent = summaryText();
   els.nameInput.value = "";
   els.scoreModal.hidden = false;
   els.nameInput.focus();
@@ -440,7 +521,7 @@ function showPack(pack) {
   document.head.appendChild(Object.assign(document.createElement("style"), { textContent: pack.css }));
   document.body.className = "";
   document.body.innerHTML = pack.html;
-  self.PACK = { index: pack.index, books: pack.books };
+  self.PACK = { index: pack.index, books: pack.books, booksZh: pack.booksZh, lang };
   const script = document.createElement("script");
   script.textContent = `(() => {\n${pack.js}\n})();`;
   document.body.appendChild(script);
@@ -454,10 +535,10 @@ els.scoreForm.addEventListener("submit", async e => {
 
   const saveBtn = els.scoreForm.querySelector('button[type="submit"]');
   saveBtn.disabled = true;
-  saveBtn.textContent = "Saving…";
+  saveBtn.textContent = t("saving");
   const pack = await openPack(name);
   saveBtn.disabled = false;
-  saveBtn.textContent = "Save";
+  saveBtn.textContent = t("save");
 
   els.scoreBtn.hidden = true; // one entry per game
   closeScoreModal();
@@ -467,9 +548,10 @@ els.scoreForm.addEventListener("submit", async e => {
     name, word: game.final.word, mistakes: game.mistakes, hints: game.hints,
     date: new Date().toISOString(),
   });
-  setMessage(`Saved! Nice work, ${name}.`, "win");
+  setMessage("saved", [name], "win");
 });
 
 // Start fresh (drop any leftover #... from the address).
 if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+applyLanguage();
 newGame();

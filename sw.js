@@ -1,6 +1,6 @@
 // Service worker: caches the game so it works offline once installed.
 // Bump CACHE when you change any files so phones pick up the update.
-const CACHE = "word-jumble-v1";
+const CACHE = "word-jumble-v2";
 
 const FILES = [
   "./",
