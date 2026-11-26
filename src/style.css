@@ -295,3 +295,36 @@ button.secondary { background: #7b7466; }
 /* The puzzle words are English, so their letters and boxes always run left to right. */
 .puzzle-body, .tray, .slots { direction: ltr; }
 [dir="rtl"] .instructions, [dir="rtl"] .message { line-height: 1.6; }
+/* ----- high score list ----- */
+.scores-btn { margin-top: 4px; }
+.list-box { max-width: 420px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); }
+.score-list {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: rank;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  text-align: start;
+}
+.score-list li {
+  counter-increment: rank;
+  position: relative;
+  padding: 8px 4px 8px 34px;
+  border-bottom: 1px solid var(--slot-border);
+}
+[dir="rtl"] .score-list li { padding: 8px 34px 8px 4px; }
+.score-list li::before {
+  content: counter(rank) ".";
+  position: absolute;
+  inset-inline-start: 4px;
+  top: 8px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.score-list li:last-child { border-bottom: none; }
+.score-top { display: flex; justify-content: space-between; gap: 8px; }
+.score-top strong { overflow-wrap: anywhere; }
+.score-date { flex-shrink: 0; font-size: 0.8rem; opacity: 0.65; }
+.score-detail { font-size: 0.9rem; }
