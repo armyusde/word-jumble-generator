@@ -535,29 +535,29 @@ const TEXT = {
   },
 };
 
-// High score list: [button + heading, close button, when the list is empty].
+// High score list: [button + heading, close button, when the list is empty, game saved without a name].
 const LIST_TEXT = {
-  en: ["High scores", "Close", "No high scores yet."],
-  zh: ["高分榜", "关闭", "还没有高分记录。"],
-  ar: ["أفضل النتائج", "إغلاق", "لا توجد نتائج بعد."],
-  es: ["Récords", "Cerrar", "Todavía no hay récords."],
-  fr: ["Meilleurs scores", "Fermer", "Aucun score pour l’instant."],
-  pt: ["Recordes", "Fechar", "Ainda não há recordes."],
-  de: ["Bestenliste", "Schließen", "Noch keine Einträge."],
-  ru: ["Рекорды", "Закрыть", "Рекордов пока нет."],
-  hi: ["उच्च स्कोर", "बंद करें", "अभी कोई उच्च स्कोर नहीं।"],
-  ja: ["ハイスコア", "閉じる", "まだ記録がありません。"],
-  ko: ["최고 기록", "닫기", "아직 기록이 없습니다."],
-  vi: ["Bảng điểm cao", "Đóng", "Chưa có điểm cao nào."],
-  id: ["Skor tertinggi", "Tutup", "Belum ada skor."],
-  tl: ["Mga high score", "Isara", "Wala pang high score."],
-  it: ["Record", "Chiudi", "Ancora nessun record."],
-  fa: ["امتیازهای برتر", "بستن", "هنوز امتیازی ثبت نشده."],
-  he: ["טבלת השיאים", "סגירה", "עדיין אין שיאים."],
-  el: ["Ρεκόρ", "Κλείσιμο", "Δεν υπάρχουν ακόμα ρεκόρ."],
+  en: ["High scores", "Close", "No high scores yet.", "(no name)"],
+  zh: ["高分榜", "关闭", "还没有高分记录。", "（未留名）"],
+  ar: ["أفضل النتائج", "إغلاق", "لا توجد نتائج بعد.", "(بدون اسم)"],
+  es: ["Récords", "Cerrar", "Todavía no hay récords.", "(sin nombre)"],
+  fr: ["Meilleurs scores", "Fermer", "Aucun score pour l’instant.", "(sans nom)"],
+  pt: ["Recordes", "Fechar", "Ainda não há recordes.", "(sem nome)"],
+  de: ["Bestenliste", "Schließen", "Noch keine Einträge.", "(ohne Namen)"],
+  ru: ["Рекорды", "Закрыть", "Рекордов пока нет.", "(без имени)"],
+  hi: ["उच्च स्कोर", "बंद करें", "अभी कोई उच्च स्कोर नहीं।", "(बिना नाम)"],
+  ja: ["ハイスコア", "閉じる", "まだ記録がありません。", "（名前なし）"],
+  ko: ["최고 기록", "닫기", "아직 기록이 없습니다.", "(이름 없음)"],
+  vi: ["Bảng điểm cao", "Đóng", "Chưa có điểm cao nào.", "(không tên)"],
+  id: ["Skor tertinggi", "Tutup", "Belum ada skor.", "(tanpa nama)"],
+  tl: ["Mga high score", "Isara", "Wala pang high score.", "(walang pangalan)"],
+  it: ["Record", "Chiudi", "Ancora nessun record.", "(senza nome)"],
+  fa: ["امتیازهای برتر", "بستن", "هنوز امتیازی ثبت نشده.", "(بدون نام)"],
+  he: ["טבלת השיאים", "סגירה", "עדיין אין שיאים.", "(ללא שם)"],
+  el: ["Ρεκόρ", "Κλείσιμο", "Δεν υπάρχουν ακόμα ρεκόρ.", "(χωρίς όνομα)"],
 };
-for (const [id, [highScores, close, noScores]] of Object.entries(LIST_TEXT)) {
-  Object.assign(TEXT[id], { highScores, close, noScores });
+for (const [id, [highScores, close, noScores, noName]] of Object.entries(LIST_TEXT)) {
+  Object.assign(TEXT[id], { highScores, close, noScores, noName });
 }
 
 let lang = "en";
@@ -742,6 +742,14 @@ function solvePuzzle(puzzle) {
     setMessage("solved", [puzzle.word], "win");
     els.hint.disabled = true;
     els.scoreBtn.hidden = false;
+    // Every finished game goes on the list straight away; entering a name later
+    // just fills in the name on this same entry.
+    game.entry = {
+      id: `${Date.now()}-${rand(1e9)}`, name: "",
+      word: game.final.word, mistakes: game.mistakes, hints: game.hints,
+      date: new Date().toISOString(),
+    };
+    saveHighScore(game.entry);
     return;
   }
 
@@ -906,11 +914,11 @@ const HIGH_SCORE_KEY = "wordJumble.highScores";
 
 function saveHighScore(entry) {
   try {
-    const list = JSON.parse(localStorage.getItem(HIGH_SCORE_KEY) || "[]");
+    const list = loadHighScores().filter(s => !entry.id || s.id !== entry.id); // replace, not duplicate
     list.push(entry);
     // Best games first: fewest mistakes, then fewest hints.
     list.sort((a, b) => a.mistakes - b.mistakes || a.hints - b.hints);
-    localStorage.setItem(HIGH_SCORE_KEY, JSON.stringify(list.slice(0, 50)));
+    localStorage.setItem(HIGH_SCORE_KEY, JSON.stringify(list.slice(0, 100)));
   } catch (e) { /* storage unavailable (e.g. private browsing) — just skip saving */ }
 }
 
@@ -951,7 +959,8 @@ function renderScoreList() {
     const top = document.createElement("div");
     top.className = "score-top";
     const name = document.createElement("strong");
-    name.textContent = s.name;
+    name.textContent = s.name || t("noName");
+    if (!s.name) name.className = "no-name";
     const date = document.createElement("span");
     date.className = "score-date";
     date.textContent = formatDate(s.date);
@@ -1052,10 +1061,8 @@ els.scoreForm.addEventListener("submit", async e => {
   closeScoreModal();
   if (pack) { showPack(pack); return; }
 
-  saveHighScore({
-    name, word: game.final.word, mistakes: game.mistakes, hints: game.hints,
-    date: new Date().toISOString(),
-  });
+  game.entry.name = name; // the game was already saved when it was won
+  saveHighScore(game.entry);
   setMessage("saved", [name], "win");
 });
 

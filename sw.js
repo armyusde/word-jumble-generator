@@ -1,6 +1,6 @@
 // Service worker: caches the game so it works offline once installed.
 // Bump CACHE (and the ?v= numbers in index.html) when you change any files.
-const CACHE = "word-jumble-v9";
+const CACHE = "word-jumble-v10";
 
 const FILES = [
   "./",
