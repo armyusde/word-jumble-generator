@@ -329,3 +329,4 @@ button.secondary { background: #7b7466; }
 .score-date { flex-shrink: 0; font-size: 0.8rem; opacity: 0.65; }
 .score-detail { font-size: 0.9rem; }
 .score-top .no-name { font-weight: 600; font-style: italic; opacity: 0.6; }
+button.danger { background: #b03a2e; }

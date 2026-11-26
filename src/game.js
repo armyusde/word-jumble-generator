@@ -30,6 +30,7 @@ const els = {
   scoreList: document.getElementById("score-list"),
   listEmpty: document.getElementById("list-empty"),
   listClose: document.getElementById("list-close"),
+  listClear: document.getElementById("list-clear"),
 };
 
 let game = null;
@@ -535,29 +536,30 @@ const TEXT = {
   },
 };
 
-// High score list: [button + heading, close button, when the list is empty, game saved without a name].
+// High score list: [button + heading, close button, when the list is empty, game saved without a name,
+// clear button, "are you sure?" question].
 const LIST_TEXT = {
-  en: ["High scores", "Close", "No high scores yet.", "(no name)"],
-  zh: ["高分榜", "关闭", "还没有高分记录。", "（未留名）"],
-  ar: ["أفضل النتائج", "إغلاق", "لا توجد نتائج بعد.", "(بدون اسم)"],
-  es: ["Récords", "Cerrar", "Todavía no hay récords.", "(sin nombre)"],
-  fr: ["Meilleurs scores", "Fermer", "Aucun score pour l’instant.", "(sans nom)"],
-  pt: ["Recordes", "Fechar", "Ainda não há recordes.", "(sem nome)"],
-  de: ["Bestenliste", "Schließen", "Noch keine Einträge.", "(ohne Namen)"],
-  ru: ["Рекорды", "Закрыть", "Рекордов пока нет.", "(без имени)"],
-  hi: ["उच्च स्कोर", "बंद करें", "अभी कोई उच्च स्कोर नहीं।", "(बिना नाम)"],
-  ja: ["ハイスコア", "閉じる", "まだ記録がありません。", "（名前なし）"],
-  ko: ["최고 기록", "닫기", "아직 기록이 없습니다.", "(이름 없음)"],
-  vi: ["Bảng điểm cao", "Đóng", "Chưa có điểm cao nào.", "(không tên)"],
-  id: ["Skor tertinggi", "Tutup", "Belum ada skor.", "(tanpa nama)"],
-  tl: ["Mga high score", "Isara", "Wala pang high score.", "(walang pangalan)"],
-  it: ["Record", "Chiudi", "Ancora nessun record.", "(senza nome)"],
-  fa: ["امتیازهای برتر", "بستن", "هنوز امتیازی ثبت نشده.", "(بدون نام)"],
-  he: ["טבלת השיאים", "סגירה", "עדיין אין שיאים.", "(ללא שם)"],
-  el: ["Ρεκόρ", "Κλείσιμο", "Δεν υπάρχουν ακόμα ρεκόρ.", "(χωρίς όνομα)"],
+  en: ["High scores", "Close", "No high scores yet.", "(no name)", "Clear scores", "Delete all high scores? This can't be undone."],
+  zh: ["高分榜", "关闭", "还没有高分记录。", "（未留名）", "清除记录", "删除所有高分记录？此操作无法撤销。"],
+  ar: ["أفضل النتائج", "إغلاق", "لا توجد نتائج بعد.", "(بدون اسم)", "مسح النتائج", "هل تريد حذف كل النتائج؟ لا يمكن التراجع عن ذلك."],
+  es: ["Récords", "Cerrar", "Todavía no hay récords.", "(sin nombre)", "Borrar récords", "¿Borrar todos los récords? No se puede deshacer."],
+  fr: ["Meilleurs scores", "Fermer", "Aucun score pour l’instant.", "(sans nom)", "Effacer les scores", "Effacer tous les scores ? Impossible d’annuler."],
+  pt: ["Recordes", "Fechar", "Ainda não há recordes.", "(sem nome)", "Apagar recordes", "Apagar todos os recordes? Isso não pode ser desfeito."],
+  de: ["Bestenliste", "Schließen", "Noch keine Einträge.", "(ohne Namen)", "Liste löschen", "Alle Einträge löschen? Das kann nicht rückgängig gemacht werden."],
+  ru: ["Рекорды", "Закрыть", "Рекордов пока нет.", "(без имени)", "Очистить", "Удалить все рекорды? Это нельзя отменить."],
+  hi: ["उच्च स्कोर", "बंद करें", "अभी कोई उच्च स्कोर नहीं।", "(बिना नाम)", "स्कोर मिटाएँ", "सभी उच्च स्कोर मिटाएँ? इसे वापस नहीं किया जा सकता।"],
+  ja: ["ハイスコア", "閉じる", "まだ記録がありません。", "（名前なし）", "記録を消去", "すべての記録を消去しますか？元に戻せません。"],
+  ko: ["최고 기록", "닫기", "아직 기록이 없습니다.", "(이름 없음)", "기록 지우기", "모든 기록을 지울까요? 되돌릴 수 없습니다."],
+  vi: ["Bảng điểm cao", "Đóng", "Chưa có điểm cao nào.", "(không tên)", "Xóa điểm", "Xóa tất cả điểm cao? Không thể hoàn tác."],
+  id: ["Skor tertinggi", "Tutup", "Belum ada skor.", "(tanpa nama)", "Hapus skor", "Hapus semua skor? Tindakan ini tidak bisa dibatalkan."],
+  tl: ["Mga high score", "Isara", "Wala pang high score.", "(walang pangalan)", "Burahin", "Burahin ang lahat ng high score? Hindi na ito maibabalik."],
+  it: ["Record", "Chiudi", "Ancora nessun record.", "(senza nome)", "Cancella record", "Cancellare tutti i record? Non si può annullare."],
+  fa: ["امتیازهای برتر", "بستن", "هنوز امتیازی ثبت نشده.", "(بدون نام)", "پاک کردن امتیازها", "همه امتیازها پاک شود؟ این کار برگشت‌پذیر نیست."],
+  he: ["טבלת השיאים", "סגירה", "עדיין אין שיאים.", "(ללא שם)", "מחיקת השיאים", "למחוק את כל השיאים? אי אפשר לבטל."],
+  el: ["Ρεκόρ", "Κλείσιμο", "Δεν υπάρχουν ακόμα ρεκόρ.", "(χωρίς όνομα)", "Διαγραφή", "Διαγραφή όλων των ρεκόρ; Δεν αναιρείται."],
 };
-for (const [id, [highScores, close, noScores, noName]] of Object.entries(LIST_TEXT)) {
-  Object.assign(TEXT[id], { highScores, close, noScores, noName });
+for (const [id, [highScores, close, noScores, noName, clearScores, clearConfirm]] of Object.entries(LIST_TEXT)) {
+  Object.assign(TEXT[id], { highScores, close, noScores, noName, clearScores, clearConfirm });
 }
 
 let lang = "en";
@@ -954,6 +956,7 @@ function renderScoreList() {
   const list = loadHighScores();
   els.scoreList.innerHTML = "";
   els.listEmpty.hidden = list.length > 0;
+  els.listClear.hidden = !list.length;
   list.forEach(s => {
     const li = document.createElement("li");
     const top = document.createElement("div");
@@ -983,6 +986,11 @@ function closeScoreList() { els.listModal.hidden = true; }
 
 els.scoresBtn.addEventListener("click", openScoreList);
 els.listClose.addEventListener("click", closeScoreList);
+els.listClear.addEventListener("click", () => {
+  if (!confirm(t("clearConfirm"))) return;
+  try { localStorage.removeItem(HIGH_SCORE_KEY); } catch (e) {}
+  renderScoreList();
+});
 els.listModal.addEventListener("click", e => { if (e.target === els.listModal) closeScoreList(); });
 
 /* ---------- bonus pack ---------- */
